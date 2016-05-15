@@ -1,0 +1,95 @@
+<head>
+<style>
+body {
+  font: normal 10px Verdana, Arial, sans-serif;
+  padding: 5em;
+  margin: 2em;
+}
+div {
+  padding: 1em;
+}
+</style>
+<script>
+// Some default values
+var appName = "Bingo Pop";
+var platform = "android";
+
+function getAppData() {
+  appName = document.getElementById("form-name").value || appName;
+  platform = document.getElementById("form-os").value || platform;
+  document.getElementById("name").innerHTML = "";
+  document.getElementById("platform").innerHTML = "";
+  document.getElementById("score").innerHTML = "";
+  document.getElementById("popularity").innerHTML = "";
+  document.getElementById("trackers").innerHTML = "";
+  document.getElementById("non-trackers").innerHTML = "";
+  document.getElementById("info-trackers").innerHTML = "";
+  document.getElementById("info-non-trackers").innerHTML = "";
+
+  var scriptE = document.createElement('script');
+  // Set the source of the script element to the JSONP endpoint
+  scriptE.src = "https://recon.firebaseio.com/apps/" + platform + "/" + appName + ".json?callback=gotData";
+  // append the script element to the page <head>
+  document.getElementsByTagName('head')[0].appendChild(scriptE);
+}
+
+function gotData(data) {
+  console.log(JSON.stringify(data)); // contains the JSON result
+  parseApp(data);
+}
+
+function parseApp(app) {
+  document.getElementById("name").innerHTML = appName;
+  document.getElementById("platform").innerHTML = platform;
+  document.getElementById("score").innerHTML = app.score;
+  document.getElementById("popularity").innerHTML = app.popularity;
+  document.getElementById("trackers").innerHTML = app.trackers;
+  document.getElementById("non-trackers").innerHTML = app.nonTrackers;
+
+  var tcLabels = "";
+  for (category in app.trackerCategories) {
+    tcLabels += "Category " + category + " (Domains:";
+    for (domain in app.trackerCategories[category]) {
+      tcLabels += " " + app.trackerCategories[category][domain];
+    }
+    tcLabels += ").\n";
+  }
+  document.getElementById("info-trackers").innerHTML = tcLabels;
+
+  var ntcLabels = "";
+  for (category in app.nonTrackerCategories) {
+    ntcLabels += "Category " + category + " (Domains:";
+    for (domain in app.nonTrackerCategories[category]) {
+      ntcLabels += " " + app.nonTrackerCategories[category][domain];
+    }
+    ntcLabels += ").\n";
+  }
+  document.getElementById("info-non-trackers").innerHTML = ntcLabels;
+}
+</script>
+
+</head>
+<body>
+  <h2> Application Information </h2>
+  <form action="javascript:0">
+    <label for="form-name"><b>Application Name:</b></label>
+    <input type="text" id="form-name" placeholder="Bingo Pop" required/>
+    <label for="form-os"><b>Operating System:</b></label>
+    <select id="form-os" name="form-os">
+      <option value="android" selected>android</option> 
+      <option value="ios">ios</option>
+      <option value="windows">windows</option>
+    </select>
+    <button onclick="getAppData()">Get Application Info!</button>
+  </form>
+  <br>
+  <h2> Application Details </h2>
+  <div> <b>NAME:</b> <span id="name"></span></div>
+  <div> <b>PLATFORM:</b> <span id="platform"></span></div>
+  <div> <b>SCORE:</b> <span id="score"></span></div>
+  <div> <b>POPULARITY: </b><span id="popularity"></span></div>
+  <div> <b>SENDING INFO TO TRACKER DOMAINS: </b><span id="trackers"> </span></div>
+  <div> <b>INFORMATION SENT TO TRACKERS: </b><span id="info-trackers"> </span></div>
+  <div> <b>SENDING INFORMATION TO NON TRACKER DOMAINS: </b><span id="non-trackers"> </span></div>
+  <div> <b>INFORMATION SENT TO NON TRACKERS:</b> <span id="info-non-trackers"></span> </div>
+</body>

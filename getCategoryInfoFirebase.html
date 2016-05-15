@@ -1,0 +1,57 @@
+<head>
+<style>
+body {
+  font: normal 10px Verdana, Arial, sans-serif;
+  padding: 5em;
+  margin: 2em;
+}
+div {
+  padding: 1em;
+}
+</style>
+<script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+<script>
+// Default values
+var category = "LOCATION";
+
+function getCategoryData() {
+  category = document.getElementById("form-category").value || domain;
+  document.getElementById("description").innerHTML = "";
+  document.getElementById("group").innerHTML = "";
+  document.getElementById("num-apps").innerHTML = "";
+  document.getElementById("num-trackers").innerHTML = "";
+  document.getElementById("num-non-trackers").innerHTML = "";
+
+  var myFirebaseRef = new Firebase("https://recon.firebaseio.com/categories/" + category);
+
+  myFirebaseRef.once("value", function(snap) {
+    console.log(JSON.stringify(snap.val()));
+    parseCategory(snap.val());
+  });
+}
+
+function parseCategory(catInfo) {
+  document.getElementById("description").innerHTML = catInfo.description;
+  document.getElementById("group").innerHTML = catInfo.group;
+  document.getElementById("num-apps").innerHTML = catInfo.numberApps["All"];
+  document.getElementById("num-trackers").innerHTML = catInfo.numberTrackers["All"];
+  document.getElementById("num-non-trackers").innerHTML = catInfo.numberNonTrackers["All"];
+}
+
+</script>
+</head>
+<body>
+  <h2> Domain Information </h2>
+  <form action="javascript:0">
+    <label for="form-category"><b>Category:</b></label>
+    <input type="text" id="form-category" placeholder="LOCATION" value="LOCATION" required/>
+    <button onclick="getCategoryData()">Get Category Info!</button>
+  </form>
+  <br>
+  <h2> Domain Details </h2>
+  <div> <b>DESCRIPTION:</b> <span id="description"></span></div>
+  <div> <b>CATEGORY GROUP:</b> <span id="group"></span></div>
+  <div> <b>NUMBER OF APPS:</b> <span id="num-apps"></span></div>
+  <div> <b>NUMBER OF TRACKERS RECEIVING INFORMATION: </b><span id="num-trackers"> </span></div>
+  <div> <b>NUMBER OF NON TRACKERS RECEIVING INFORMATION: </b><span id="num-non-trackers"> </span></div>
+</body>

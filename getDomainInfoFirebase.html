@@ -1,0 +1,72 @@
+<head>
+<style>
+body {
+  font: normal 10px Verdana, Arial, sans-serif;
+  padding: 5em;
+  margin: 2em;
+}
+div {
+  padding: 1em;
+}
+</style>
+<script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+<script>
+// Default values
+var domain = "bluekai.com";
+
+function getDomainData() {
+  domain = document.getElementById("form-url").value || domain;
+  var myFirebaseRef = new Firebase("https://recon.firebaseio.com/domains/" + convertToHex(domain));
+
+  document.getElementById("tracker").innerHTML = "";
+  document.getElementById("info-categories").innerHTML = "";
+  document.getElementById("info-apps").innerHTML = "";
+
+  myFirebaseRef.once("value", function(snap) {
+    console.log(JSON.stringify(snap.val()));
+    parseDomain(snap.val());
+  });
+}
+
+function parseDomain(domain) {
+  document.getElementById("tracker").innerHTML = domain.tracker;
+
+  var catLabels = "Categories: ";
+  for (category in domain.categories) {
+    catLabels += " " + category;
+  }
+  document.getElementById("info-categories").innerHTML = catLabels;
+
+  var appLabels = "";
+  for (platform in domain.apps) {
+    appLabels += "Platform " + platform + " (Apps:";
+    for (app in domain.apps[platform]) {
+      appLabels += " " + app;
+    }
+    appLabels += ").\n";
+  }
+  document.getElementById("info-apps").innerHTML = appLabels;
+}
+
+function convertToHex(str) {
+  var hex = '';
+  for(var i=0;i<str.length;i++) {
+    hex += ''+str.charCodeAt(i).toString(16);
+  }
+  return hex;
+}
+</script>
+</head>
+<body>
+  <h2> Domain Information </h2>
+  <form action="javascript:0">
+    <label for="form-url"><b>Domain URL:</b></label>
+    <input type="text" id="form-url" placeholder="bluekai.com" required/>
+    <button onclick="getDomainData()">Get Domain Info!</button>
+  </form>
+  <br>
+  <h2> Domain Details </h2>
+  <div> <b>TRACKER:</b> <span id="tracker"></span></div>
+  <div> <b>INFORMATION CATEGORIES RECEIVED: </b><span id="info-categories"> </span></div>
+  <div> <b>APPLICATIONS SENDING INFORMATION: </b><span id="info-apps"> </span></div>
+</body>
